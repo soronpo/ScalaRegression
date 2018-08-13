@@ -1,3 +1,8 @@
 object Test {
-  TwoFaceInt(1) + TwoFaceInt(2)
+  import Foo._
+  val a = w"2"
+  val b = w"1"
+  a + b //compiles
+
+  w"1" + w"2" //compilation error
 }

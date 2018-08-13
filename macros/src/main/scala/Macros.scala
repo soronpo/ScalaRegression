@@ -1,22 +1,19 @@
 import scala.reflect.macros.whitebox.Context
 
-final class TwoFaceInt[T](val value : Int) {
-  def + [R](that : TwoFaceInt[R]) = ???
+trait Foo
+trait FooW[W] extends Foo {
+  def + [R](that : FooW[R]) = ???
 }
-object TwoFaceInt {
-  def apply[T <: Int, Out <: T](value : T) : TwoFaceInt[Out] = macro Builder.Macro.fromNumValue[T]
+object Foo {
+  final implicit class StringSyntax(val sc: StringContext) extends AnyVal {
+    def w[W](args: Foo*) : FooW[W] = macro Macro.fooStringInterpolator
+  }
+
 }
 
-object Builder {
-  final class Macro(val c: Context) {
-    def fromNumValue[T](value : c.Tree)(implicit t : c.WeakTypeTag[T]) : c.Tree = {
-      import c.universe._
-      val tTpe = weakTypeOf[T]
-      val valueTpe = value match {
-        case Literal(Constant(t : Int)) => c.internal.constantType(Constant(t))
-        case _ => tTpe
-      }
-      q"new TwoFaceInt[$valueTpe]($value)"
-    }
+object Macro {
+   def fooStringInterpolator(c: Context)(args: c.Expr[Foo]*): c.Tree = {
+    import c.universe._
+     q"new FooW[Int]{}"
   }
 }
